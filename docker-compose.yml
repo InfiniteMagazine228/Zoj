@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./backend
+    container_name: oj-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./submissions:/app/submissions
+      - ./testcases:/app/testcases
+      - ./uploads:/app/uploads
+      - /var/run/docker.sock:/var/run/docker.sock # Cho phép API gọi Docker để tạo sandbox
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  judge:
+    build:
+      context: ./judge
+    container_name: oj-judge-base
+    image: oj-judge:latest
+    # Image này chỉ được build 1 lần để làm base cho sandbox
